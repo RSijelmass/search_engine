@@ -29,7 +29,7 @@ class Crawler
 		urls = seed_urls_nodeset.inject("") do |urls, node|
 			node.first[1].include?('http') ? (urls + node.first[1] + " ") : urls
 		end
-		return urls.strip
+		urls.strip
 	end
 
 	def fetch_metadata(attribute, seed)
@@ -44,7 +44,7 @@ class Crawler
 			raw_text.gsub!(/[\n,\t]/, " ") if raw_text.include?('\n')
 			text + "#{raw_text} "
 		end
-		return full_text.split.join(" ")
+		full_text.split.join(" ")
 	end
 
 	def fetch_headers(seed)
@@ -54,7 +54,7 @@ class Crawler
 			tag_header ? (header_text + tag_header + " ") : (header_text)
 		end
 		headers.gsub!(/[^\w ]/, "")
-		return headers.strip
+		headers.strip
 	end
 
 	private

@@ -21,6 +21,3 @@ class Indexer
 		end
   end
 end
-
-variable = Indexer.new
-variable.process_csv
