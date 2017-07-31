@@ -12,12 +12,8 @@ class Crawler
 
 	def fetch_data
 		create_csv_file
-		count = 0
-		@seeds.each do |seed|
-			count += 1
+		@seeds.each_with_index do |seed, id|
 			checked_seed = check_url_or_file(seed)
-
-			id = count 
 			urls = fetch_urls(checked_seed)
 			keywords = fetch_metadata('keywords', checked_seed)
 			description = fetch_metadata('description',checked_seed)
@@ -29,10 +25,9 @@ class Crawler
 	end
 
 	def fetch_urls(seed)
-		urls = ""
 		seed_urls_nodeset = seed.xpath('//a')
-		seed_urls_nodeset.each do |node|
-			urls += node.first[1] + " " if node.first[1].include?('http') #|| node.first.include?('https://')
+		urls = seed_urls_nodeset.inject("") do |urls, node|
+			node.first[1].include?('http') ? (urls + node.first[1] + " ") : urls
 		end
 		return urls.strip
 	end
@@ -43,22 +38,20 @@ class Crawler
 	end
 
 		def fetch_paragraphs(seed)
-		full_text = ""
 		seed_paragraph_nodeset = seed.xpath('//p')
-		seed_paragraph_nodeset.each do |node|
+		full_text = seed_paragraph_nodeset.inject("") do |text, node|
 			raw_text = node.text.delete('^A-Za-z ')
 			raw_text.gsub!(/[\n,\t]/, " ") if raw_text.include?('\n')
-			full_text += "#{raw_text} "
+			text + "#{raw_text} "
 		end
 		return full_text.split.join(" ")
 	end
 
 	def fetch_headers(seed)
-		headers = ""
 		headers_tags = (1..6).map { |num| "h#{num}"}
-		headers_tags.each do |header_tag|
+		headers = headers_tags.inject("") do |header_text, header_tag|
 			tag_header = get_header_from_tag(seed, header_tag)
-			headers += tag_header + " " if tag_header
+			tag_header ? (header_text + tag_header + " ") : (header_text)
 		end
 		headers.gsub!(/[^\w ]/, "")
 		return headers.strip
@@ -85,12 +78,11 @@ class Crawler
 	end
 
 	def get_header_from_tag(seed , header_tag)
-		headers_from_one_tag = ""
 		headers_from_nodeset = seed.xpath("//#{header_tag}")
-		headers_from_nodeset.each do |node|
-			headers_from_one_tag += node.text + " "
+		headers_from_tag = headers_from_nodeset.inject("") do |text_tag, node|
+			text_tag + node.text + " "
 		end
-		return headers_from_one_tag.strip if headers_from_one_tag.strip.length > 0
+		return headers_from_tag.strip if headers_from_tag.strip.length > 0
 	end
 
 	def create_csv_file
@@ -100,6 +92,3 @@ class Crawler
 		end
 	end
 end
-
-crawler = Crawler.new(['https://en.wikipedia.org/wiki/Web_crawler'])
-crawler.fetch_data
