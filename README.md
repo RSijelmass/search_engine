@@ -2,6 +2,13 @@
 ### A search engine developed as a week project at Makers Academy
 ...
 
+## How to Run
+- clone this repo
+- `ruby lib/interface`
+- input keyword
+
+## Tech Stack
+
 ## Objects
 #### Crawler: 
 - initialises with array of seeds
